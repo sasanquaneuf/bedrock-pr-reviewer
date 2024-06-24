@@ -6437,6 +6437,7 @@ function parseReview(response,
 patches) {
     const reviews = [];
     try {
+        console.log(response);
         const rawReviews = JSON.parse(response).reviews;
         for (const r of rawReviews) {
             if (r.comment) {
@@ -6448,8 +6449,17 @@ patches) {
             }
         }
     }
-    catch (e) {
-        (0,core.error)(e.message);
+    catch (err) {
+        const positionMatch = err.message.match(/position (\d+)/);
+        const position = positionMatch ? parseInt(positionMatch[1], 10) : null;
+        if (position !== null) {
+            (0,core.error)(`JSONのパースエラー: ${err.message}。エラー位置: ${position}文字目`);
+            (0,core.error)('エラーの周辺:' + response.substring(position - 10, position + 10));
+        }
+        else {
+            (0,core.error)('JSONのパースエラー:', err.message);
+        }
+        (0,core.error)(err.message);
         return [];
     }
     return reviews;
