@@ -2364,8 +2364,21 @@ class Bot {
         if (response != null) {
             const rawResponse = Buffer.from(response.body).toString('utf-8');
             (0,core.info)(rawResponse);
-            responseText = JSON.parse(rawResponse)
-                .content?.[0]?.text;
+            try {
+                responseText = JSON.parse(rawResponse)
+                    .content?.[0]?.text;
+            }
+            catch (err) {
+                const positionMatch = err.message.match(/position (\d+)/);
+                const position = positionMatch ? parseInt(positionMatch[1], 10) : null;
+                if (position !== null) {
+                    (0,core.error)(`JSONのパースエラー: ${err.message}。エラー位置: ${position}文字目`);
+                    (0,core.error)('エラーの周辺:' + rawResponse.substring(position - 10, position + 10));
+                }
+                else {
+                    (0,core.error)('JSONのパースエラー:', err.message);
+                }
+            }
         }
         else {
             (0,core.warning)('bedrock response is null');
