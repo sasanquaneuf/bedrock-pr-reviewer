@@ -126,8 +126,8 @@ export class Bot {
           error('エラーの周辺:' + rawResponse.substring(position - 10, position + 10));
         } else {
           error('JSONのパースエラー:', err.message);
+        }
       }
-    }        
     } else {
       warning('bedrock response is null')
     }

@@ -860,6 +860,7 @@ function parseReview(
   const reviews: Review[] = []
 
   try {
+    console.log(response)
     const rawReviews = JSON.parse(response).reviews
     for (const r of rawReviews) {
       if (r.comment) {
@@ -870,8 +871,16 @@ function parseReview(
         })
       }
     }
-  } catch (e: any) {
-    error(e.message)
+  } catch (err: any) {
+    const positionMatch = err.message.match(/position (\d+)/);
+    const position = positionMatch ? parseInt(positionMatch[1], 10) : null;
+    if (position !== null) {
+      error(`JSONのパースエラー: ${err.message}。エラー位置: ${position}文字目`);
+      error('エラーの周辺:' + response.substring(position - 10, position + 10));
+    } else {
+      error('JSONのパースエラー:', err.message);
+    }
+    error(err.message)
     return []
   }
 
