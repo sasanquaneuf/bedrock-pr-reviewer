@@ -118,7 +118,7 @@ export class Bot {
       try {
         responseText = JSON.parse(rawResponse)
           .content?.[0]?.text
-        } catch (err: any) {
+      } catch (err: any) {
         const positionMatch = err.message.match(/position (\d+)/);
         const position = positionMatch ? parseInt(positionMatch[1], 10) : null;
         if (position !== null) {
@@ -126,7 +126,7 @@ export class Bot {
           error('エラーの周辺:' + rawResponse.substring(position - 10, position + 10));
         } else {
           error('JSONのパースエラー:', err.message);
-        }
+      }
     }        
     } else {
       warning('bedrock response is null')
