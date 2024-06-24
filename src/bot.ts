@@ -113,7 +113,9 @@ export class Bot {
 
     let responseText = ''
     if (response != null) {
-      responseText = JSON.parse(Buffer.from(response.body).toString('utf-8'))
+      const rawResponse = Buffer.from(response.body).toString('utf-8')
+      info(rawResponse)
+      responseText = JSON.parse(rawResponse)
         .content?.[0]?.text
     } else {
       warning('bedrock response is null')
