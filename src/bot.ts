@@ -5,7 +5,7 @@ import {
   InvokeModelCommand,
   InvokeModelCommandOutput
 } from '@aws-sdk/client-bedrock-runtime'
-import {info, warning} from '@actions/core'
+import {info, warning, error} from '@actions/core'
 import pRetry from 'p-retry'
 import {BedrockOptions, Options} from './options'
 
@@ -115,8 +115,19 @@ export class Bot {
     if (response != null) {
       const rawResponse = Buffer.from(response.body).toString('utf-8')
       info(rawResponse)
-      responseText = JSON.parse(rawResponse)
-        .content?.[0]?.text
+      try {
+        responseText = JSON.parse(rawResponse)
+          .content?.[0]?.text
+        } catch (err: any) {
+        const positionMatch = err.message.match(/position (\d+)/);
+        const position = positionMatch ? parseInt(positionMatch[1], 10) : null;
+        if (position !== null) {
+          error(`JSONのパースエラー: ${err.message}。エラー位置: ${position}文字目`);
+          error('エラーの周辺:' + rawResponse.substring(position - 10, position + 10));
+        } else {
+          error('JSONのパースエラー:', err.message);
+        }
+    }        
     } else {
       warning('bedrock response is null')
     }
